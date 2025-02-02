@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 bcrypt = "0.17.0"
 serde = "1.0.217"
+
+database = { path = "../database" }
+jsonwebtoken = "9.3.0"
