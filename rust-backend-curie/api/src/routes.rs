@@ -1,9 +1,8 @@
 
-use auth::auth_service::AuthResponse;
-use auth::auth_service::AuthRequest;
+
 use rocket::serde::json::Json;
 use auth::auth_service;
-
+use database::repository::user_repository::{AuthRequest, AuthResponse};
 
 #[post("/login", format = "json", data = "<auth_request>")]
 // Request guard to ensure the request is valid
@@ -20,12 +19,12 @@ pub fn login(auth_request: Json<AuthRequest>) -> Option<Json<AuthResponse>> {
     }
 }
 
-use database::models::Usuario;
+use database::models::NewUsuario;
 #[post("/register", format = "json", data = "<user>")]
-pub fn register(user: Json<Usuario>) -> Option<Json<AuthResponse>> {
+pub fn register(user: Json<NewUsuario>) -> Option<Json<AuthResponse>> {
 
     let user_response = auth_service::register_user(user.into_inner());
-    
+
     match user_response {
         Ok(user_response) => Some(Json(user_response)),
         Err(e) => {

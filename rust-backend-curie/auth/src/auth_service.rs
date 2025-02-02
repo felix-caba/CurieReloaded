@@ -1,20 +1,10 @@
-use serde::{Deserialize, Serialize};
+use database::models::NewUsuario;
 use database::repository::user_repository;
-use database::models::Usuario;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
 
+use database::repository::user_repository::{AuthRequest, AuthResponse};
 
-#[derive(Deserialize, Serialize)]
-pub struct AuthRequest {
-    pub username: String,
-    pub password: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct AuthResponse {
-    pub token: String,
-}
 
 
 
@@ -38,18 +28,34 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stri
 
 }
 
-pub fn register_user(mut user: Usuario) -> Result<AuthResponse, String> {
+/**
+ * 
+ * Register a new user, hashing the password, and returning the token 
+ * in a AuthResponse struct
+ * 
+ */
+
+pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, String> {
+
+
+    if user.password.is_none() {
+        return Err("La contraseña es requerida".to_string());
+    }
 
     let hashed_password = bcrypt_encoder::hash_password(&user.password.unwrap());
     user.password = Some(hashed_password);
-    
+
+
     let user = user_repository::create_user(&user);
 
     if user.is_none() {
         return Err("Error al crear el usuario".to_string());
-    } else {
-        let token = jwt_service::generate_token(user.unwrap().id.to_string());
-        return Ok(AuthResponse { token });
     }
+
+    let token = jwt_service::generate_token(user.unwrap().id.to_string());
+
+    Ok(AuthResponse { token })
+     
+     
 
 }
