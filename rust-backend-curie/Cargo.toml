@@ -4,9 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rocket = "0.5.0-rc.3"
-diesel = { version = "2.2.0", features = ["mysql"] }
-# build libmysqlclient as part of the build process
-# uncomment this line if you run into setup issues
-# mysqlclient-sys = { version = "0.4", features = ["bundled"] }
-dotenvy = "0.15"
+database = { path = "./database" }
+api = { path = "./api" }
+auth = { path = "./auth" }
+
+[workspace]
+members = [
+    "api",
+    "database",
+    "auth"
+]
+resolver = "2"
