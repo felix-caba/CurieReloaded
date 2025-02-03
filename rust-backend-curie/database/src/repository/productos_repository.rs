@@ -1,37 +1,30 @@
 use diesel::prelude::*;
-use rocket::http::Status;
-use serde::Deserialize;
-use serde::Serialize;   
+use rocket::http::Status;  
 
-
+use crate::models::productos_models::Producto;
+use crate::models::productos_models::ProductoWithDetails;
+use crate::models::reactivos_models::Reactivo;
 use crate::schema::productos::idProducto;
 use crate::schema::{productos, reactivos};
 
-/**
- * Flatten para omitir el ID duplicado
- */
-#[derive(Serialize, Deserialize)]
-pub struct ProductoReactivo {
-    #[serde(flatten)]
-    pub producto: Producto,
-    #[serde(flatten)]
-    pub reactivo: Reactivo,
-}
 
 use crate::establish_connection;
 
-pub fn get_reactivos() -> Result<Vec<ProductoReactivo>, Status> {
-
+pub fn get_reactivos() -> Result<Vec<ProductoWithDetails<Reactivo>>, Status> {
     let connection = &mut establish_connection();
     
-    let todos_los_reactivos_y_productos = reactivos::table
-    .inner_join(productos::table)
-    .select((Reactivo::as_select(), Producto::as_select()))
-    .load::<(Reactivo, Producto)>(connection)
-    .map_err(|_| Status::InternalServerError)?;
+    let resultados = reactivos::table
+        .inner_join(productos::table)
+        .select((Reactivo::as_select(), Producto::as_select()))
+        .load::<(Reactivo, Producto)>(connection)
+        .map_err(|_| Status::InternalServerError)?;
   
-    let productos_reactivo = todos_los_reactivos_y_productos.into_iter()
-    .map(|(reactivo, producto)| ProductoReactivo { producto, reactivo }).collect();
+    let productos_reactivo = resultados.into_iter()
+        .map(|(detalle, producto)| ProductoWithDetails {
+            producto,
+            details: detalle
+        })
+        .collect();
 
     Ok(productos_reactivo)
 }
