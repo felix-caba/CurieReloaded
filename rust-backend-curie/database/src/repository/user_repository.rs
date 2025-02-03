@@ -5,7 +5,6 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use crate::models::NewUsuario;
 
-
 #[derive(Deserialize, Serialize)]
 pub struct AuthRequest {
     pub username: String,
@@ -14,8 +13,10 @@ pub struct AuthRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct AuthResponse {
-    pub token: String,
+    pub token: Option<String>,
 }
+
+
 
 #[derive(Deserialize, Serialize)]
 pub struct RegisterRequest {
@@ -23,6 +24,8 @@ pub struct RegisterRequest {
     pub password: String,
     pub email: String,
 }
+
+
 
 
 pub fn get_user_by_email(email_to_search: &str) -> Option<Usuario> {
@@ -50,6 +53,20 @@ pub fn get_user_by_username(username_to_search: &str) -> Option<Usuario> {
 
     user
 }
+
+pub fn username_exists(username_to_check: &str) -> bool {
+    get_user_by_username(username_to_check).is_some()
+}
+
+pub fn email_exists(email_to_check: &str) -> bool {
+    get_user_by_email(email_to_check).is_some()
+}
+
+pub fn check_duplicate_user(new_user: &NewUsuario) -> bool {
+    username_exists(&new_user.username) || email_exists(&new_user.email)
+}
+
+
 
 /**
  * 
@@ -80,8 +97,4 @@ pub fn create_user(new_user: &NewUsuario) -> Option<Usuario> {
         .optional()
 
     }).expect("Error creating user")
-
-   
-
-
 }

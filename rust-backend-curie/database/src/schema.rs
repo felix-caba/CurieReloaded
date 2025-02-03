@@ -93,7 +93,7 @@ diesel::table! {
     usuarios (id) {
         id -> Integer,
         #[max_length = 255]
-        email -> Nullable<Varchar>,
+        email -> Varchar,
         #[max_length = 255]
         password -> Varchar,
         #[max_length = 255]

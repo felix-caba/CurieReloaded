@@ -4,9 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-diesel = { version = "2.2.0", features = ["mysql"] }
+chrono = { version = "0.4.39", features = ["serde"] }
+diesel = { version = "2.2.0", features = ["mysql", "chrono"] }
 # build libmysqlclient as part of the build process
 # uncomment this line if you run into setup issues
 # mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 dotenvy = "0.15"
+rocket = { version = "0.5.1", features = ["secrets", "tls", "json"] }
 serde = "1.0.217"
+

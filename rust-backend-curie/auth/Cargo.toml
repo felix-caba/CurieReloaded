@@ -9,3 +9,5 @@ serde = "1.0.217"
 
 database = { path = "../database" }
 jsonwebtoken = "9.3.0"
+
+rocket = { version = "0.5.1", features = ["secrets", "tls", "json",] }

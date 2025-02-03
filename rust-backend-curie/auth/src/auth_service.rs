@@ -1,7 +1,9 @@
 use database::models::NewUsuario;
 use database::repository::user_repository;
+use rocket::http::Status;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
+
 
 use database::repository::user_repository::{AuthRequest, AuthResponse};
 
@@ -15,21 +17,20 @@ use database::repository::user_repository::{AuthRequest, AuthResponse};
  */
 
 
-pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, String> {
+pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Status> {
 
-    let user = match user_repository::get_user_by_username(&auth_request.username) {
-        Some(user) => user,
-        None => return Err("Usuario no encontrado".to_string()),
-    };
+        let user = match user_repository::get_user_by_username(&auth_request.username) {
+            Some(user) => user,
+            None => return Err(Status::NotFound)
+        };
 
     if !bcrypt_encoder::verify_password(&auth_request.password, &user.password) {
-        return Err("Contraseña incorrecta".to_string());
+        return Err(Status::Unauthorized)
     }
 
     let token = jwt_service::generate_token(user.id.to_string());
 
-    Ok(AuthResponse { token })
-
+    Ok(AuthResponse { token: Some(token) })
 }
 
 /**
@@ -39,24 +40,30 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stri
  * 
  */
 
-pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, String> {
+pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, Status> {
 
+    // First I check for dupes
 
-    let hashed_password = bcrypt_encoder::hash_password(&user.password);
-
-    user.password = hashed_password;
-
-
-    let user = user_repository::create_user(&user);
-
-    if user.is_none() {
-        return Err("Error al crear el usuario".to_string());
+    if user_repository::check_duplicate_user(&user) {
+        return Err(Status::Conflict);
     }
 
-    let token = jwt_service::generate_token(user.unwrap().id.to_string());
+    let hashed_password = bcrypt_encoder::hash_password(&user.password);
+    user.password = hashed_password;
 
-    Ok(AuthResponse { token })
-     
-     
+    /*
+     * Uso un option donde me devolverá el Some(user) o None
+     * Si es None, devuelvo un error
+     * Si es Some(user), devuelvo el usuario
+     */
+
+    let user = match user_repository::create_user(&user) {
+        Some(user) => user,
+        None => { return Err(Status::InternalServerError); }
+    };
+
+    let token = jwt_service::generate_token(user.id.to_string());
+    Ok(AuthResponse { token: Some(token) })
+
 
 }

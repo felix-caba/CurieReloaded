@@ -7,6 +7,7 @@ struct Claims {
     sub: String,  // subject (user id)
     exp: usize,   // expiration time
     iat: usize,   // issued at
+    admin: bool,
 }
 
 pub fn generate_token(user_id: String) -> String {
@@ -26,6 +27,7 @@ pub fn generate_token(user_id: String) -> String {
         sub: user_id,
         exp,
         iat: now,
+        admin: false,
     };
 
     let key = env::var("JWT_SECRET").unwrap();
