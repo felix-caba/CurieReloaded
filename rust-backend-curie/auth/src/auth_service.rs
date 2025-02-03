@@ -7,18 +7,22 @@ use database::repository::user_repository::{AuthRequest, AuthResponse};
 
 
 
+/**
+ * 
+ * Autentico el usuario (login)
+ * Espera un AuthRequest o devuelve un error 
+ * 
+ */
+
 
 pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, String> {
 
-    let user = user_repository::get_user_by_username(&auth_request.username);
+    let user = match user_repository::get_user_by_username(&auth_request.username) {
+        Some(user) => user,
+        None => return Err("Usuario no encontrado".to_string()),
+    };
 
-    if user.is_none() {
-        return Err("Usuario no encontrado".to_string());
-    }
-
-    let user = user.unwrap();
-
-    if !bcrypt_encoder::verify_password(&auth_request.password, &user.password.unwrap()) {
+    if !bcrypt_encoder::verify_password(&auth_request.password, &user.password) {
         return Err("Contraseña incorrecta".to_string());
     }
 
@@ -38,12 +42,9 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stri
 pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, String> {
 
 
-    if user.password.is_none() {
-        return Err("La contraseña es requerida".to_string());
-    }
+    let hashed_password = bcrypt_encoder::hash_password(&user.password);
 
-    let hashed_password = bcrypt_encoder::hash_password(&user.password.unwrap());
-    user.password = Some(hashed_password);
+    user.password = hashed_password;
 
 
     let user = user_repository::create_user(&user);

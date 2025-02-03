@@ -1,3 +1,4 @@
 rust-backend-curie/.env
 rust-backend-curie/target
 .DS_Store
+rust-backend-curie/.DS_Store

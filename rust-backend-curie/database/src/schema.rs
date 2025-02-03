@@ -95,9 +95,9 @@ diesel::table! {
         #[max_length = 255]
         email -> Nullable<Varchar>,
         #[max_length = 255]
-        password -> Nullable<Varchar>,
+        password -> Varchar,
         #[max_length = 255]
-        username -> Nullable<Varchar>,
+        username -> Varchar,
         admin -> Nullable<Integer>,
         pfp -> Nullable<Longblob>,
     }

@@ -23,8 +23,8 @@ pub struct Producto {
 pub struct Usuario {
     pub id: i32,
     pub email: Option<String>,
-    pub password: Option<String>,
-    pub username: Option<String>,
+    pub password: String,
+    pub username: String,
     pub admin: Option<i32>,
     pub pfp: Option<Vec<u8>>,
 }
@@ -36,7 +36,7 @@ pub struct Usuario {
 #[allow(non_snake_case)] 
 pub struct NewUsuario {
     pub email: Option<String>,
-    pub password: Option<String>,
-    pub username: Option<String>,
+    pub password: String,
+    pub username: String,
 }
 
