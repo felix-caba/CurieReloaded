@@ -1,10 +1,8 @@
-use crate::schema::usuarios::dsl::*;
-use crate::models::Usuario;
+use crate::models::usuarios_models::UsuarioForm;
+use crate::{models::usuarios_models::Usuario, schema::usuarios::dsl::*};
 use crate::establish_connection;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::models::NewUsuario;
-
 #[derive(Deserialize, Serialize)]
 pub struct AuthRequest {
     pub username: String,
@@ -62,7 +60,7 @@ pub fn email_exists(email_to_check: &str) -> bool {
     get_user_by_email(email_to_check).is_some()
 }
 
-pub fn check_duplicate_user(new_user: &NewUsuario) -> bool {
+pub fn check_duplicate_user(new_user: &UsuarioForm) -> bool {
     username_exists(&new_user.username) || email_exists(&new_user.email)
 }
 
@@ -80,21 +78,19 @@ pub fn check_duplicate_user(new_user: &NewUsuario) -> bool {
  * 
  */
 
-pub fn create_user(new_user: &NewUsuario) -> Option<Usuario> {
+
+
+pub fn create_user(new_user: &UsuarioForm) -> Result<Usuario, diesel::result::Error> {
     let mut connection = establish_connection();
-
-    connection.transaction(|connection  | {
-
+    
+    connection.transaction(|connection| {
         diesel::insert_into(usuarios)
             .values(new_user)
-            .execute(connection)
-            .expect("Error creating user");
-        
-        usuarios
-        .order(id.desc())
-        .select(Usuario::as_select())
-        .first(connection)
-        .optional()
+            .execute(connection)?;
 
-    }).expect("Error creating user")
+        usuarios
+            .order(id.desc())
+            .select(Usuario::as_select())
+            .first(connection)
+    })
 }

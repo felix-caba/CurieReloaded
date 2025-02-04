@@ -1,8 +1,9 @@
-use database::models::NewUsuario;
+
 use database::repository::user_repository;
 use rocket::http::Status;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
+use database::models::usuarios_models::UsuarioForm;
 
 
 use database::repository::user_repository::{AuthRequest, AuthResponse};
@@ -19,7 +20,7 @@ use database::repository::user_repository::{AuthRequest, AuthResponse};
 
 pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Status> {
 
-        let user = match user_repository::get_user_by_username(&auth_request.username) {
+    let user = match user_repository::get_user_by_username(&auth_request.username) {
             Some(user) => user,
             None => return Err(Status::NotFound)
         };
@@ -40,7 +41,7 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stat
  * 
  */
 
-pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, Status> {
+pub fn register_user(mut user: UsuarioForm) -> Result<AuthResponse, Status> {
 
     // First I check for dupes
 
@@ -57,9 +58,9 @@ pub fn register_user(mut user: NewUsuario) -> Result<AuthResponse, Status> {
      * Si es Some(user), devuelvo el usuario
      */
 
-    let user = match user_repository::create_user(&user) {
-        Some(user) => user,
-        None => { return Err(Status::InternalServerError); }
+     let user = match user_repository::create_user(&user) {
+        Ok(user) => user,
+        Err(_) => return Err(Status::InternalServerError),
     };
 
     let token = jwt_service::generate_token(user.id.to_string());

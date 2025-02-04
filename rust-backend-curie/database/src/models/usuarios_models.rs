@@ -22,8 +22,8 @@ pub struct Usuario {
 #[diesel(table_name = usuarios)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
 #[allow(non_snake_case)] 
-pub struct NewUsuario {
-    pub email: String,
-    pub password: String,
+pub struct UsuarioForm {
     pub username: String,
+    pub password: String,
+    pub email: String,
 }

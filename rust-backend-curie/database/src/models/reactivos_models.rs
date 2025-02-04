@@ -17,7 +17,7 @@ pub struct Reactivo {
     pub fechaCaducidad: Option<NaiveDate>, 
 }
 
-#[derive(Selectable, PartialEq, Insertable)]
+#[derive(Selectable, PartialEq, Insertable, AsChangeset)]
 #[derive(serde::Deserialize, Serialize)]
 #[diesel(table_name = reactivos)]
 #[allow(non_snake_case)] 

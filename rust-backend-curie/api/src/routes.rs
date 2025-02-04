@@ -1,6 +1,8 @@
 
 
-use database::repository::productos_repository::{self, ProductoReactivo};
+use database::models::reactivos_models::{Reactivo, ReactivoForm};
+use database::repository::productos_repository::{self};
+use database::models::productos_models::{ProductoFormWithDetails, ProductoWithDetails};
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use auth::auth_service;
@@ -19,9 +21,11 @@ pub fn login(auth_request: Json<AuthRequest>) -> Result<Json<AuthResponse>, Stat
     }
 }
 
-use database::models::NewUsuario;
+use database::models::usuarios_models::UsuarioForm;
+
+
 #[post("/register", format = "json", data = "<user>")]
-pub fn register(user: Json<NewUsuario>) -> Result<Json<AuthResponse>, Status> {
+pub fn register(user: Json<UsuarioForm>) -> Result<Json<AuthResponse>, Status> {
     let user_response = auth_service::register_user(user.into_inner());
 
     match user_response {
@@ -30,15 +34,45 @@ pub fn register(user: Json<NewUsuario>) -> Result<Json<AuthResponse>, Status> {
     }
 }
 
-#[get("/reactivos", format = "json")]
-pub fn get_reactivos() -> Result<Json<Vec<ProductoReactivo>>, Status> {
-    let reactivos = productos_repository::get_reactivos();
+#[get("/reactivos")]
+pub fn get_reactivos() -> Result<Json<Vec<ProductoWithDetails<Reactivo>>>, Status> {
+    let reactivos = productos_repository::select_reactivos();
 
     match reactivos {
         Ok(reactivos) => Ok(Json(reactivos)),
-        Err(e) => Err(e)
+        Err(e) => {
+            println!("[ProductoService] Error al obtener los reactivos: {}", e);
+            Err(Status::InternalServerError)
+        }
     }
 }
+
+#[post("/reactivos", format = "json", data = "<producto_form>")]
+pub fn create_reactivo(producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
+    let reactivo = productos_repository::insert_reactivo(producto_form.into_inner());
+
+    match reactivo {
+        Ok(reactivo) => Ok(Json(reactivo)),
+        Err(e) => {
+            println!("[ProductoService] Error al crear el reactivo: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+#[put("/reactivos/<id>", format = "json", data = "<producto_form>")]
+pub fn update_reactivo(id: i32, producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
+    let reactivo = productos_repository::update_reactivo(id, producto_form.into_inner());
+
+    match reactivo {
+        Ok(reactivo) => Ok(Json(reactivo)),
+        Err(e) => {
+            println!("[ProductoService] Error al actualizar el reactivo: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
 
 
 

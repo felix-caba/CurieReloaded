@@ -19,7 +19,7 @@ pub struct Producto {
     pub stock_minimo: Option<i32>,
 }
 
-#[derive(PartialEq, Insertable)]
+#[derive(PartialEq, Insertable, AsChangeset)]
 #[derive(serde::Deserialize, Serialize)]
 #[diesel(table_name = productos)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
@@ -31,6 +31,7 @@ pub struct ProductoForm {
     pub cantidad: Option<i32>,
     pub stock_minimo: Option<i32>,
 }
+
 
 #[derive(Serialize, Deserialize)]
 pub struct ProductoWithDetails<T> {
