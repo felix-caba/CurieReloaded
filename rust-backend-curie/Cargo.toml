@@ -3,17 +3,28 @@ name = "rust-backend-curie"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-database = { path = "./database" }
-api = { path = "./api" }
-auth = { path = "./auth" }
-serde_json = "1.0.138"
-
 [workspace]
 members = [
     "api",
     "auth",
     "database",
-    # ... any other crates
 ]
 resolver = "2"
+
+[workspace.dependencies]
+rocket = { version = "0.5.1", features = ["secrets", "tls", "json"] }
+serde = { version = "1.0.217", features = ["derive"] }
+diesel = { version = "2.2.0", features = ["mysql", "chrono"] }
+
+[dependencies]
+database = { path = "./database" }
+api = { path = "./api" }
+auth = { path = "./auth" }
+
+
+
+
+
+
+
+

@@ -7,7 +7,8 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use auth::auth_service;
 use database::repository::user_repository::{AuthRequest, AuthResponse};
-
+use diesel::result::Error as DieselError;
+    
 
 
 #[post("/login", format = "json", data = "<auth_request>")]
@@ -34,7 +35,20 @@ pub fn register(user: Json<UsuarioForm>) -> Result<Json<AuthResponse>, Status> {
     }
 }
 
-#[get("/reactivos")]
+#[delete("/delete/<id>")]
+pub fn delete_producto(id: i32) -> Result<Json<()>, Status> {
+    let result = productos_repository::delete_producto(id);
+    match result {
+        Ok(()) => Ok(Json(())),
+        Err(DieselError::NotFound) => Err(Status::NotFound),
+        Err(e) => {
+            println!("Error interno: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+#[get("/select")]
 pub fn get_reactivos() -> Result<Json<Vec<ProductoWithDetails<Reactivo>>>, Status> {
     let reactivos = productos_repository::select_reactivos();
 
@@ -47,7 +61,7 @@ pub fn get_reactivos() -> Result<Json<Vec<ProductoWithDetails<Reactivo>>>, Statu
     }
 }
 
-#[post("/reactivos", format = "json", data = "<producto_form>")]
+#[post("/insert", format = "json", data = "<producto_form>")]
 pub fn create_reactivo(producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
     let reactivo = productos_repository::insert_reactivo(producto_form.into_inner());
 
@@ -60,7 +74,7 @@ pub fn create_reactivo(producto_form: Json<ProductoFormWithDetails<ReactivoForm>
     }
 }
 
-#[put("/reactivos/<id>", format = "json", data = "<producto_form>")]
+#[put("/update/<id>", format = "json", data = "<producto_form>")]
 pub fn update_reactivo(id: i32, producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
     let reactivo = productos_repository::update_reactivo(id, producto_form.into_inner());
 

@@ -4,10 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bcrypt = "0.17.0"
-serde = "1.0.217"
+diesel.workspace = true
+rocket.workspace = true
+serde.workspace = true
 
+bcrypt = "0.17.0"
 database = { path = "../database" }
 jsonwebtoken = "9.3.0"
 
-rocket = { version = "0.5.1", features = ["secrets", "tls", "json",] }

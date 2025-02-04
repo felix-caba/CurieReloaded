@@ -3,8 +3,11 @@ name = "api"
 version = "0.1.0"
 edition = "2021"
 
+
 [dependencies]
-rocket = { version = "0.5.1", features = ["secrets", "tls", "json"] }
-serde = { version = "1.0.217", features = ["derive"] }
+diesel.workspace = true
+rocket.workspace = true
+serde.workspace = true
 database = { path = "../database" }
 auth = { path = "../auth" }
+

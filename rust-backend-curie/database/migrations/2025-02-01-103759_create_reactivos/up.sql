@@ -6,5 +6,5 @@ CREATE TABLE `reactivos` (
     `fechaCaducidad` date DEFAULT NULL,
     PRIMARY KEY (`idProducto`),
     KEY `idProducto` (`idProducto`),
-    CONSTRAINT `reactivos_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `productos` (`idProducto`)
+    CONSTRAINT `reactivos_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `productos` (`idProducto`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci

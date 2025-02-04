@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use rocket::http::Status;
 
 use crate::models::productos_models::Producto;
 use crate::models::productos_models::ProductoForm;
@@ -7,6 +8,8 @@ use crate::models::productos_models::ProductoWithDetails;
 use crate::models::reactivos_models::Reactivo;
 use crate::models::reactivos_models::ReactivoForm;
 use crate::schema::{productos, reactivos};
+
+
 
 use crate::establish_connection;
 
@@ -114,4 +117,29 @@ pub fn update_reactivo(id: i32, producto_form: ProductoFormWithDetails<ReactivoF
     
 }
 
+pub fn delete_producto(id: i32) -> Result<(), diesel::result::Error> {
+    let mut connection = establish_connection();
 
+    connection.transaction(|connection| {
+
+        let producto_to_delete: Option<Producto> = productos::table
+            .filter(productos::idProducto.eq(id))
+            .select(Producto::as_select())
+            .first(connection)
+            .optional()?;
+
+        if producto_to_delete.is_none() {
+            return Err(diesel::result::Error::NotFound);
+        }
+        
+
+        diesel::delete(productos::table)
+            .filter(productos::idProducto.eq(id))
+            .execute(connection)?;
+    
+
+        Ok(())
+
+    })
+
+}

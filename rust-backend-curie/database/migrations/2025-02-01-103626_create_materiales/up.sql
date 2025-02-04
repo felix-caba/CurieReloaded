@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE `materiales` (
     `idProducto` int NOT NULL,
     `subcategoria` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -7,5 +6,5 @@ CREATE TABLE `materiales` (
     `fecha_compra` date DEFAULT NULL,
     `fechaCaducidad` date DEFAULT NULL,
     PRIMARY KEY (`idProducto`),
-    CONSTRAINT `materiales_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `productos` (`idProducto`)
+    CONSTRAINT `materiales_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `productos` (`idProducto`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci

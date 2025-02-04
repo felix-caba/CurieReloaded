@@ -82,6 +82,7 @@ version = "0.1.0"
 dependencies = [
  "auth",
  "database",
+ "diesel",
  "rocket",
  "serde",
 ]
@@ -140,6 +141,7 @@ version = "0.1.0"
 dependencies = [
  "bcrypt",
  "database",
+ "diesel",
  "jsonwebtoken",
  "rocket",
  "serde",
@@ -1626,7 +1628,6 @@ dependencies = [
  "api",
  "auth",
  "database",
- "serde_json",
 ]
 
 [[package]]
