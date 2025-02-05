@@ -23,6 +23,7 @@ pub struct JWT {
 impl<'r> FromRequest<'r> for JWT {
     type Error = Status;
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Status> {
+        
         fn is_valid(key: &str) -> Result<Claims, Error> {
             Ok(decode_token(key)?)
         }
@@ -31,25 +32,24 @@ impl<'r> FromRequest<'r> for JWT {
 
         match token {
             None => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
-
             Some(token) => {
                 let claims = is_valid(&token);
                 match claims {
                     Ok(claims) => Outcome::Success(JWT { claims }),
                     Err(err) => match &err.kind() {
-
                         ErrorKind::InvalidToken => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
                         ErrorKind::ExpiredSignature => Outcome::Error((Status::Unauthorized, Status::from_code(419).unwrap())),
-                        _ => Outcome::Error((Status::InternalServerError, Status::InternalServerError)),
-
+                        ErrorKind::InvalidSignature => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+                        _ => {
+                            eprintln!("Error: {}", err);
+                            Outcome::Error((Status::InternalServerError, Status::InternalServerError))
+                        }
                     }
                 }
             }
-        }        
+        }
     }
 }
-
-
 
 pub fn decode_token(token: &str) -> Result<Claims, Error> {
     let key = env::var("JWT_SECRET").unwrap();

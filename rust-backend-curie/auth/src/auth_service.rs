@@ -1,9 +1,7 @@
 
-use database::models::usuarios_models::Usuario;
+
 use database::repository::user_repository;
 use rocket::http::Status;
-use rocket::request::FromRequest;
-use rocket::Request;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
 use database::models::usuarios_models::UsuarioForm;

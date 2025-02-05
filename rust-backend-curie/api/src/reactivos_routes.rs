@@ -1,3 +1,4 @@
+use auth::jwt_service::JWT;
 use database::models::productos_models::{ProductoModel, ProductoModelForm};
 use database::models::reactivos_models::{Reactivo, ReactivoForm};
 use database::repository::productos_repository;
@@ -19,8 +20,14 @@ pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
 
 #[post("/insert", format = "json", data = "<reactivo_form>")]
 pub fn create_reactivo(
-    reactivo_form: Json<ProductoModelForm<ReactivoForm>>,
+reactivo_form: Json<ProductoModelForm<ReactivoForm>>,
+key: Result<JWT, Status>
 ) -> Result<Json<ProductoModel<Reactivo>>, Status> {
+
+    key?;
+
+    
+
     let reactivo = productos_repository::insert_reactivo(reactivo_form.into_inner());
 
     match reactivo {
