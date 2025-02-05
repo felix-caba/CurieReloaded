@@ -61,6 +61,23 @@ pub fn get_reactivos() -> Result<Json<Vec<ProductoWithDetails<Reactivo>>>, Statu
     }
 }
 
+#[post("/insert/reactivo", format = "json", data = "<reactivo_form>")]
+pub fn create_reactivo(
+    reactivo_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
+    let result = productos_repository::create_producto_with_details(reactivo_form.into_inner());
+    
+    match result {
+        Ok(producto) => Ok(Json(producto)),
+        Err(e) => {
+            println!("[ProductoService] Error al crear el reactivo: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+
+
+/* 
 #[post("/insert", format = "json", data = "<producto_form>")]
 pub fn create_reactivo(producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
     let reactivo = productos_repository::insert_reactivo(producto_form.into_inner());
@@ -73,7 +90,8 @@ pub fn create_reactivo(producto_form: Json<ProductoFormWithDetails<ReactivoForm>
         }
     }
 }
-
+    */
+/* 
 #[put("/update/<id>", format = "json", data = "<producto_form>")]
 pub fn update_reactivo(id: i32, producto_form: Json<ProductoFormWithDetails<ReactivoForm>>) -> Result<Json<ProductoWithDetails<Reactivo>>, Status> {
     let reactivo = productos_repository::update_reactivo(id, producto_form.into_inner());
@@ -87,6 +105,6 @@ pub fn update_reactivo(id: i32, producto_form: Json<ProductoFormWithDetails<Reac
     }
 }
 
-
+*/
 
 

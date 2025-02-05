@@ -2,6 +2,28 @@ use crate::{models::productos_models::Producto, schema::reactivos};
 use diesel::prelude::*;
 use chrono::NaiveDate;
 use serde:: Serialize;
+use crate::models::productos_models::InsertDetail;
+
+impl InsertDetail for ReactivoForm {
+    type Inserted = Reactivo;
+
+    fn insert_detail(self, id_producto: i32, conn: &mut MysqlConnection) -> Result<Self::Inserted, diesel::result::Error> {
+       
+        
+        let nuevo_reactivo = Reactivo {
+            idProducto: id_producto,
+            formato: self.formato,
+            gradoPureza: self.gradoPureza,
+            fechaCaducidad: self.fechaCaducidad,
+        };
+
+        diesel::insert_into(reactivos::table)
+            .values(&nuevo_reactivo)
+            .execute(conn)?;
+
+        Ok(nuevo_reactivo)
+    }
+}
 
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq, Insertable)]

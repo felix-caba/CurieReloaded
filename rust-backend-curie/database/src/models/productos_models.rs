@@ -2,7 +2,13 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use crate::schema::productos;
 
-
+pub trait InsertDetail: Sized {
+    type Inserted;
+    
+    fn insert_detail(self, id_producto: i32, conn: &mut MysqlConnection) 
+        -> Result<Self::Inserted, diesel::result::Error>;
+        
+}
 
 #[derive(Queryable, Identifiable, Selectable, Debug, PartialEq, Clone, Insertable)]
 #[derive(serde::Deserialize, Serialize)]
@@ -16,7 +22,7 @@ pub struct Producto {
     pub idUbicacion: i32,
     pub nombre: Option<String>,
     pub cantidad: Option<i32>,
-    pub stock_minimo: Option<i32>,
+    pub stock_minimo: Option<i32>,  
 }
 
 #[derive(PartialEq, Insertable, AsChangeset)]
@@ -32,23 +38,22 @@ pub struct ProductoForm {
     pub stock_minimo: Option<i32>,
 }
 
-
 #[derive(Serialize, Deserialize)]
-pub struct ProductoWithDetails<T> {
+pub struct ProductoWithDetails<Q> {
     #[serde(flatten)]
     pub producto: Producto,
     #[serde(flatten)]
-    pub details: T,
+    pub details: Q,
 }
 
-// Estructura genérica para formularios
 #[derive(Serialize, Deserialize)]
-pub struct ProductoFormWithDetails<T> {
+pub struct ProductoFormWithDetails<F> {
     #[serde(flatten)]
     pub producto: ProductoForm,
     #[serde(flatten)]
-    pub details: T,
+    pub details: F,
 }
+
 
 
 

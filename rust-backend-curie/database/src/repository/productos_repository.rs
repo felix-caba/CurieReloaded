@@ -1,17 +1,54 @@
 use diesel::prelude::*;
-use rocket::http::Status;
 
+
+use crate::models::productos_models::InsertDetail;
 use crate::models::productos_models::Producto;
 use crate::models::productos_models::ProductoForm;
 use crate::models::productos_models::ProductoFormWithDetails;
 use crate::models::productos_models::ProductoWithDetails;
+
 use crate::models::reactivos_models::Reactivo;
-use crate::models::reactivos_models::ReactivoForm;
 use crate::schema::{productos, reactivos};
 
 
 
 use crate::establish_connection;
+
+pub fn create_producto_with_details<F, D>(
+    form: ProductoFormWithDetails<F>,
+) -> Result<ProductoWithDetails<D>, diesel::result::Error>
+where
+    F: InsertDetail<Inserted = D>,
+{
+    let mut conn = establish_connection();
+    conn.transaction(|conn| {
+   
+        diesel::insert_into(productos::table)
+            .values(&form.producto)
+            .execute(conn)?;
+
+    
+        let last_id = productos::table
+            .order(productos::idProducto.desc())
+            .select(productos::idProducto)
+            .first(conn)?;  
+
+
+        let producto = productos::table
+            .select(Producto::as_select())
+            .filter(productos::idProducto.eq(last_id))
+            .first::<Producto>(conn)?;
+
+        let details = form.details.insert_detail(last_id, conn)?;
+
+        Ok(ProductoWithDetails {
+            producto,
+            details,
+        })
+    })
+    
+}
+
 
 fn update_producto(connection: &mut MysqlConnection, id: i32, producto: &ProductoForm) -> Result<Producto, diesel::result::Error> {
     diesel::update(productos::table)
@@ -43,7 +80,7 @@ pub fn select_reactivos() -> Result<Vec<ProductoWithDetails<Reactivo>>, diesel::
 
     Ok(productos_reactivo)
 }
-
+/* 
 pub fn insert_reactivo(producto_form: ProductoFormWithDetails<ReactivoForm>) -> Result<ProductoWithDetails<Reactivo>, diesel::result::Error> {
     let mut connection = establish_connection();
 
@@ -86,6 +123,9 @@ pub fn insert_reactivo(producto_form: ProductoFormWithDetails<ReactivoForm>) -> 
     })
 }
 
+*/
+
+/* 
 pub fn update_reactivo(id: i32, producto_form: ProductoFormWithDetails<ReactivoForm>) -> Result<ProductoWithDetails<Reactivo>, diesel::result::Error> {
 
     let mut connection = establish_connection();
@@ -116,7 +156,7 @@ pub fn update_reactivo(id: i32, producto_form: ProductoFormWithDetails<ReactivoF
 
     
 }
-
+*/
 pub fn delete_producto(id: i32) -> Result<(), diesel::result::Error> {
     let mut connection = establish_connection();
 

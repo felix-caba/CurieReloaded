@@ -3,6 +3,30 @@ use diesel::prelude::*;
 use chrono::NaiveDate;
 use serde:: Serialize;
 
+use super::productos_models::InsertDetail;
+
+impl InsertDetail for MaterialForm {
+    type Inserted = Material;
+
+    fn insert_detail(self, id_producto: i32, conn: &mut MysqlConnection) -> Result<Self::Inserted, diesel::result::Error> {
+        
+        let nuevo_material = Material {
+            idProducto: id_producto,
+            subcategoria: self.subcategoria,
+            numero_serie: self.numero_serie,
+            descripcion: self.descripcion,
+            fecha_compra: self.fecha_compra,
+            fechaCaducidad: self.fechaCaducidad,
+        };
+
+        diesel::insert_into(materiales::table)
+            .values(&nuevo_material)
+            .execute(conn)?;
+
+        Ok(nuevo_material)
+    }
+}
+
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq, Insertable)]
 #[derive(serde::Deserialize, Serialize)]
 #[diesel(primary_key(idProducto))]

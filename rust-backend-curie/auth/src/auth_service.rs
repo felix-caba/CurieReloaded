@@ -1,12 +1,18 @@
 
+use database::models::usuarios_models::Usuario;
 use database::repository::user_repository;
 use rocket::http::Status;
+use rocket::request::FromRequest;
+use rocket::Request;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
 use database::models::usuarios_models::UsuarioForm;
 
 
 use database::repository::user_repository::{AuthRequest, AuthResponse};
+
+
+
 
 
 
@@ -40,6 +46,8 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stat
  * in a AuthResponse struct
  * 
  */
+
+ 
 
 pub fn register_user(mut user: UsuarioForm) -> Result<AuthResponse, Status> {
 
