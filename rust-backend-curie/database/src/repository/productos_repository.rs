@@ -1,185 +1,95 @@
-use diesel::prelude::*;
+use chrono::NaiveDate;
+use diesel::associations::HasTable;
+use diesel::backend::Backend;
+use diesel::query_builder::InsertStatement;
+use diesel::query_dsl::methods::ExecuteDsl;
+use diesel::sql_types::SqlType;
+use diesel::{connection, mysql, prelude::*};
 
+use crate::models::productos_models::*;
+use crate::models::reactivos_models::*;
+use crate::schema::*;
+use crate::{establish_connection, schema};
 
-use crate::models::productos_models::InsertDetail;
-use crate::models::productos_models::Producto;
-use crate::models::productos_models::ProductoForm;
-use crate::models::productos_models::ProductoFormWithDetails;
-use crate::models::productos_models::ProductoWithDetails;
+use super::shared::update_producto;
 
-use crate::models::reactivos_models::Reactivo;
-use crate::schema::{productos, reactivos};
+pub fn get_reactivos() -> Result<Vec<ProductoModel<Reactivo>>, diesel::result::Error> {
+    let connection = &mut establish_connection();
+    let results = producto::table
+        .inner_join(reactivo::table.on(reactivo::idProducto.eq(producto::idProducto)))
+        .select((Producto::as_select(), Reactivo::as_select()))
+        .load::<(Producto, Reactivo)>(connection)?;
 
-
-
-use crate::establish_connection;
-
-pub fn create_producto_with_details<F, D>(
-    form: ProductoFormWithDetails<F>,
-) -> Result<ProductoWithDetails<D>, diesel::result::Error>
-where
-    F: InsertDetail<Inserted = D>,
-{
-    let mut conn = establish_connection();
-    conn.transaction(|conn| {
-   
-        diesel::insert_into(productos::table)
-            .values(&form.producto)
-            .execute(conn)?;
-
-    
-        let last_id = productos::table
-            .order(productos::idProducto.desc())
-            .select(productos::idProducto)
-            .first(conn)?;  
-
-
-        let producto = productos::table
-            .select(Producto::as_select())
-            .filter(productos::idProducto.eq(last_id))
-            .first::<Producto>(conn)?;
-
-        let details = form.details.insert_detail(last_id, conn)?;
-
-        Ok(ProductoWithDetails {
-            producto,
+    let producto_models = results
+        .into_iter()
+        .map(|(producto_base, details)| ProductoModel {
+            producto_base,
             details,
         })
-    })
-    
+        .collect();
+    Ok(producto_models)
 }
 
-
-fn update_producto(connection: &mut MysqlConnection, id: i32, producto: &ProductoForm) -> Result<Producto, diesel::result::Error> {
-    diesel::update(productos::table)
-        .set(producto)
-        .filter(productos::idProducto.eq(id))
-        .execute(connection)?;
-
-    productos::table
-        .filter(productos::idProducto.eq(id))
-        .select(Producto::as_select())
-        .first(connection)
-}
-
-pub fn select_reactivos() -> Result<Vec<ProductoWithDetails<Reactivo>>, diesel::result::Error> {
+pub fn insert_reactivo(
+    reactivo_model_form: ProductoModelForm<Reactivo>,
+) -> Result<ProductoModel<Reactivo>, diesel::result::Error> {
     let connection = &mut establish_connection();
 
-    let resultados = reactivos::table
-        .inner_join(productos::table)
-        .select((Reactivo::as_select(), Producto::as_select()))
-        .load::<(Reactivo, Producto)>(connection)?;
-
-    let productos_reactivo = resultados
-        .into_iter()
-        .map(|(detalle, producto)| ProductoWithDetails {
-            producto,
-            details: detalle,
-        })
-        .collect();
-
-    Ok(productos_reactivo)
-}
-/* 
-pub fn insert_reactivo(producto_form: ProductoFormWithDetails<ReactivoForm>) -> Result<ProductoWithDetails<Reactivo>, diesel::result::Error> {
-    let mut connection = establish_connection();
-
     connection.transaction(|connection| {
-        
-        diesel::insert_into(productos::table)
-            .values(&producto_form.producto)
+        diesel::insert_into(producto::table)
+            .values(&reactivo_model_form.producto_base)
             .execute(connection)?;
 
-       
-        let producto_insertado = productos::table
-            .order(productos::idProducto.desc())
-            .select(Producto::as_select())
-            .first(connection)?;
+        let last_id_i64: i64 = diesel::select(last_insert_id()).get_result(connection)?;
 
-    
-        let reactivo_a_insertar = Reactivo {
-            idProducto: producto_insertado.idProducto,
-            formato: producto_form.details.formato,
-            gradoPureza: producto_form.details.gradoPureza,
-            fechaCaducidad: producto_form.details.fechaCaducidad,
+        let producto_inserted: Producto = producto::table
+            .filter(producto::idProducto.eq(last_id_i64 as i32))
+            .select(Producto::as_select())
+            .first::<Producto>(connection)?;
+
+        let mut reactivo_with_id: Reactivo = reactivo_model_form.details;
+        reactivo_with_id.idProducto = last_id_i64 as i32;
+
+        diesel::insert_into(reactivo::table)
+            .values(&reactivo_with_id)
+            .execute(connection)?;
+
+        let reactivo_inserted = reactivo::table
+            .filter(reactivo::idProducto.eq(last_id_i64 as i32))
+            .first::<Reactivo>(connection)?;
+
+        let producto_model = ProductoModel {
+            producto_base: producto_inserted,
+            details: reactivo_inserted,
         };
 
-    
-        diesel::insert_into(reactivos::table)
-            .values(&reactivo_a_insertar)
-            .execute(connection)?;
-
-    
-        let reactivo_insertado = reactivos::table
-            .order(reactivos::idProducto.desc())
-            .select(Reactivo::as_select())
-            .first(connection)?;
-
-       
-        Ok(ProductoWithDetails {
-            producto: producto_insertado,
-            details: reactivo_insertado,
-        })
+        Ok(producto_model)
     })
 }
 
-*/
-
-/* 
-pub fn update_reactivo(id: i32, producto_form: ProductoFormWithDetails<ReactivoForm>) -> Result<ProductoWithDetails<Reactivo>, diesel::result::Error> {
-
-    let mut connection = establish_connection();
+pub fn update_reactivo(
+    reactivo_model_form: ProductoModelForm<ReactivoForm>,
+    id: i32,
+) -> Result<ProductoModel<Reactivo>, diesel::result::Error> {
+    let connection = &mut establish_connection();
 
     connection.transaction(|connection| {
+        let producto_actualizado: Producto =
+            update_producto(connection, id, &reactivo_model_form.producto_base)?;
 
-        let producto_actualizado = update_producto(connection, id, &producto_form.producto)?;
-
-        diesel::update(reactivos::table)
-            .set(&producto_form.details)
-            .filter(reactivos::idProducto.eq(id))
+        diesel::update(reactivo::table)
+            .set(&reactivo_model_form.details)
+            .filter(reactivo::idProducto.eq(id))
             .execute(connection)?;
 
-        let reactivo_actualizado = reactivos::table
-            .filter(reactivos::idProducto.eq(id))
+        let reactivo_actualizado = reactivo::table
+            .filter(reactivo::idProducto.eq(id))
             .select(Reactivo::as_select())
             .first(connection)?;
 
-        Ok(ProductoWithDetails {
-            producto: producto_actualizado,
+        Ok(ProductoModel {
+            producto_base: producto_actualizado,
             details: reactivo_actualizado,
         })
-
     })
-
-    
-
-
-    
-}
-*/
-pub fn delete_producto(id: i32) -> Result<(), diesel::result::Error> {
-    let mut connection = establish_connection();
-
-    connection.transaction(|connection| {
-
-        let producto_to_delete: Option<Producto> = productos::table
-            .filter(productos::idProducto.eq(id))
-            .select(Producto::as_select())
-            .first(connection)
-            .optional()?;
-
-        if producto_to_delete.is_none() {
-            return Err(diesel::result::Error::NotFound);
-        }
-        
-
-        diesel::delete(productos::table)
-            .filter(productos::idProducto.eq(id))
-            .execute(connection)?;
-    
-
-        Ok(())
-
-    })
-
 }

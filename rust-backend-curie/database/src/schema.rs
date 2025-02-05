@@ -9,7 +9,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    materiales (idProducto) {
+    material (idProducto) {
         idProducto -> Integer,
         #[max_length = 255]
         subcategoria -> Nullable<Varchar>,
@@ -41,7 +41,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    productos (idProducto) {
+    producto (idProducto) {
         idProducto -> Integer,
         #[max_length = 255]
         nombre -> Nullable<Varchar>,
@@ -53,7 +53,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    productos_auxiliares (idProducto) {
+    auxiliar (idProducto) {
         idProducto -> Integer,
         #[max_length = 255]
         formato -> Nullable<Varchar>,
@@ -61,7 +61,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    reactivos (idProducto) {
+    reactivo (idProducto) {
         idProducto -> Integer,
         #[max_length = 255]
         formato -> Nullable<Varchar>,
@@ -103,25 +103,31 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(materiales -> productos (idProducto));
+use diesel::{define_sql_function, sql_types::BigInt};
+
+diesel::joinable!(material -> producto (idProducto));
 diesel::joinable!(password_reset_token -> usuarios (user_id));
-diesel::joinable!(producto_riesgo -> productos (idProducto));
-diesel::joinable!(producto_riesgo -> reactivos (idProducto));
+diesel::joinable!(producto_riesgo -> producto (idProducto));
+diesel::joinable!(producto_riesgo -> reactivo (idProducto));
 diesel::joinable!(producto_riesgo -> riesgos (idRiesgo));
-diesel::joinable!(productos -> localizacion (idLocalizacion));
-diesel::joinable!(productos -> ubicacion (idUbicacion));
-diesel::joinable!(productos_auxiliares -> productos (idProducto));
-diesel::joinable!(reactivos -> productos (idProducto));
+diesel::joinable!(producto -> localizacion (idLocalizacion));
+diesel::joinable!(producto -> ubicacion (idUbicacion));
+diesel::joinable!(auxiliar -> producto (idProducto));
+diesel::joinable!(reactivo -> producto (idProducto));
 diesel::joinable!(ubicacion -> localizacion (idLocalizacionFK));
+
+define_sql_function!(fn last_insert_id() -> BigInt);
+
+
 
 diesel::allow_tables_to_appear_in_same_query!(
     localizacion,
-    materiales,
+    material,
     password_reset_token,
     producto_riesgo,
-    productos,
-    productos_auxiliares,
-    reactivos,
+    producto,
+    auxiliar,
+    reactivo,
     riesgos,
     ubicacion,
     usuarios,

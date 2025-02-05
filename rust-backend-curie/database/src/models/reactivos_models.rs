@@ -1,36 +1,20 @@
-use crate::{models::productos_models::Producto, schema::reactivos};
+use crate::{models::productos_models::Producto, schema::reactivo};
 use diesel::prelude::*;
 use chrono::NaiveDate;
 use serde:: Serialize;
-use crate::models::productos_models::InsertDetail;
 
-impl InsertDetail for ReactivoForm {
-    type Inserted = Reactivo;
+use super::productos_models::Model;
 
-    fn insert_detail(self, id_producto: i32, conn: &mut MysqlConnection) -> Result<Self::Inserted, diesel::result::Error> {
-       
-        
-        let nuevo_reactivo = Reactivo {
-            idProducto: id_producto,
-            formato: self.formato,
-            gradoPureza: self.gradoPureza,
-            fechaCaducidad: self.fechaCaducidad,
-        };
-
-        diesel::insert_into(reactivos::table)
-            .values(&nuevo_reactivo)
-            .execute(conn)?;
-
-        Ok(nuevo_reactivo)
-    }
+impl Model for Reactivo {
+    type Table = reactivo::table;
+    type Model = Reactivo;
 }
-
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq, Insertable)]
 #[derive(serde::Deserialize, Serialize)]
 #[diesel(primary_key(idProducto))]
 #[diesel(belongs_to(Producto, foreign_key = idProducto))]
-#[diesel(table_name = reactivos)]
+#[diesel(table_name = reactivo)]
 #[allow(non_snake_case)] 
 pub struct Reactivo {
     pub idProducto: i32,
@@ -41,7 +25,7 @@ pub struct Reactivo {
 
 #[derive(Selectable, PartialEq, Insertable, AsChangeset)]
 #[derive(serde::Deserialize, Serialize)]
-#[diesel(table_name = reactivos)]
+#[diesel(table_name = reactivo)]
 #[allow(non_snake_case)] 
 pub struct ReactivoForm {
     pub formato: Option<String>,

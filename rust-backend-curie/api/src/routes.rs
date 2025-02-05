@@ -1,13 +1,12 @@
 
 
-use database::models::reactivos_models::{Reactivo, ReactivoForm};
+use database::models::reactivos_models::Reactivo;
 use database::repository::productos_repository::{self};
-use database::models::productos_models::{ProductoFormWithDetails, ProductoWithDetails};
+use database::models::productos_models::ProductoModel;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use auth::auth_service;
 use database::repository::user_repository::{AuthRequest, AuthResponse};
-use diesel::result::Error as DieselError;
     
 
 
@@ -35,6 +34,22 @@ pub fn register(user: Json<UsuarioForm>) -> Result<Json<AuthResponse>, Status> {
     }
 }
 
+
+#[get("/select")]
+pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
+    let reactivos = productos_repository::get_reactivos();
+
+    match reactivos {
+        Ok(reactivos) => Ok(Json(reactivos)),
+        Err(e) => {
+            println!("[ProductoService] Error al obtener los reactivos: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+
+/* 
 #[delete("/delete/<id>")]
 pub fn delete_producto(id: i32) -> Result<Json<()>, Status> {
     let result = productos_repository::delete_producto(id);
@@ -108,3 +123,4 @@ pub fn update_reactivo(id: i32, producto_form: Json<ProductoFormWithDetails<Reac
 */
 
 
+*/
