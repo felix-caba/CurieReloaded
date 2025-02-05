@@ -1,19 +1,13 @@
-use chrono::NaiveDate;
-use diesel::associations::HasTable;
-use diesel::backend::Backend;
-use diesel::query_builder::InsertStatement;
-use diesel::query_dsl::methods::ExecuteDsl;
-use diesel::sql_types::SqlType;
-use diesel::{connection, mysql, prelude::*};
+use diesel::prelude::*;
 
 use crate::models::productos_models::*;
 use crate::models::reactivos_models::*;
 use crate::schema::*;
-use crate::{establish_connection, schema};
+use crate::establish_connection;
 
 use super::shared::update_producto;
 
-pub fn get_reactivos() -> Result<Vec<ProductoModel<Reactivo>>, diesel::result::Error> {
+pub fn select_reactivos() -> Result<Vec<ProductoModel<Reactivo>>, diesel::result::Error> {
     let connection = &mut establish_connection();
     let results = producto::table
         .inner_join(reactivo::table.on(reactivo::idProducto.eq(producto::idProducto)))
@@ -31,7 +25,7 @@ pub fn get_reactivos() -> Result<Vec<ProductoModel<Reactivo>>, diesel::result::E
 }
 
 pub fn insert_reactivo(
-    reactivo_model_form: ProductoModelForm<Reactivo>,
+    reactivo_model_form: ProductoModelForm<ReactivoForm>,
 ) -> Result<ProductoModel<Reactivo>, diesel::result::Error> {
     let connection = &mut establish_connection();
 
@@ -47,8 +41,12 @@ pub fn insert_reactivo(
             .select(Producto::as_select())
             .first::<Producto>(connection)?;
 
-        let mut reactivo_with_id: Reactivo = reactivo_model_form.details;
-        reactivo_with_id.idProducto = last_id_i64 as i32;
+        let reactivo_with_id = Reactivo {
+            idProducto: last_id_i64 as i32,
+            formato: reactivo_model_form.details.formato,
+            gradoPureza: reactivo_model_form.details.gradoPureza,
+            fechaCaducidad: reactivo_model_form.details.fechaCaducidad,
+        };
 
         diesel::insert_into(reactivo::table)
             .values(&reactivo_with_id)

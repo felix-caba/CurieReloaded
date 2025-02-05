@@ -1,5 +1,5 @@
 use crate::schema::producto;
-use diesel::{expression::NonAggregate, prelude::*, sql_types::{Integer, SqlType}};
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 pub trait Model {

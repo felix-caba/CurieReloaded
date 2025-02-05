@@ -103,7 +103,7 @@ diesel::table! {
     }
 }
 
-use diesel::{define_sql_function, sql_types::BigInt};
+use diesel::define_sql_function;
 
 diesel::joinable!(material -> producto (idProducto));
 diesel::joinable!(password_reset_token -> usuarios (user_id));
