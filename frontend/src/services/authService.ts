@@ -4,7 +4,8 @@ import { LoginRequest, User } from '../types/user';
 
 
 
-export type LoginResponse = User & {
+export type LoginResponse = {
+    user: User;
     token: string;
 }
 

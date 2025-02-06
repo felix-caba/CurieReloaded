@@ -16,7 +16,8 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: mmkvStorage,
-  whitelist: [authSlice.name],
+  whitelist: ['authSlice'],
+  timeout: 0,
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -29,7 +30,8 @@ export const store = configureStore({
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
       }).
-    concat(baseApi.middleware, ErrorMiddleware),
+      concat(baseApi.middleware)
+      .concat(ErrorMiddleware),
 
   })
   

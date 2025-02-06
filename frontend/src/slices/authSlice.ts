@@ -5,10 +5,13 @@ import { User } from "../types/user";
 import { deleteCredentials, saveCredentials } from "../handlers/keychainHandler";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import mmkvStorage from "../store/mmkvStorage";
 
 interface AuthState {
     user: User | null;
 }
+
+
 
 
 
@@ -22,12 +25,16 @@ const authSlice = createSlice({
             try {
                 const { user, token } = action.payload;
                 state.user = user;
+
                 if (user) {
                     saveCredentials(user, token);
                 }
+                
             } catch (error) {
                 handleErrorMessage(error);
             }
+
+            console.log("Usuario en el estado: " + state.user?.username);
         },
         onLogout: (state) => {
             state.user = null;
@@ -40,6 +47,10 @@ const authSlice = createSlice({
 export const useIsSignedIn = (): boolean => {
     return useSelector((state: RootState) => state.authSlice.user !== null);
 }
+
+export const useCurrentUser = () => {
+    return useSelector((state: RootState) => state.authSlice.user);
+};
 
 export const { saveUserToState, onLogout } = authSlice.actions;
 export default authSlice.reducer;

@@ -25,4 +25,7 @@ export function handleErrorMessage(error: any) {
         const errorData = error.data as ErrorResponse;
         toast.error(errorData.error.description);
     }
+    else {
+        console.log(error);
+    }
 }

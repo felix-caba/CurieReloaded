@@ -6,16 +6,16 @@ import { store, persistor } from './src/store/store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toasts } from '@backpackapp-io/react-native-toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { createStaticNavigation, NavigationContainer, StaticParamList } from '@react-navigation/native';
+import { createStaticNavigation, NavigationContainer, NavigatorScreenParams, StaticParamList, StaticScreenProps } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useIsSignedIn } from './src/slices/authSlice';
+import ProductListScreen from './src/screens/ProductListScreen';
 
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Login',
   screens: {
     Login: {
       if: () => !useIsSignedIn(),
@@ -30,17 +30,26 @@ const RootStack = createNativeStackNavigator({
       options: {
         headerShown: false,
       },
+      
+    },
+    ProductList: {
+      screen: ProductListScreen,
+      options: {
+        headerShown: true,
+      },
     },
   },
 });
 
+
+
 const Navigation = createStaticNavigation(RootStack);
 
-type RootStackParamList = StaticParamList<typeof RootStack>;
+export type RootStackParamList = StaticParamList<typeof RootStack>;
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
 
@@ -50,28 +59,32 @@ function App(): React.JSX.Element {
     <SafeAreaProvider>
       <GestureHandlerRootView>
 
-        <PersistGate loading={null} persistor={persistor}>
+
 
 
         <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
 
-        
-           
+
             <Navigation />
-            
-           
 
-          <Toasts />
 
+
+            <Toasts />
+          </PersistGate>
         </Provider>
 
-        </PersistGate>
+
       </GestureHandlerRootView>
     </SafeAreaProvider>
 
 
   );
 }
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
