@@ -5,7 +5,7 @@ use database::repository::productos_repository;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 
-#[get("/select")]
+#[get("/reactivo/select")]
 pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
     let reactivos = productos_repository::select_reactivos();
 
@@ -18,7 +18,7 @@ pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
     }
 }
 
-#[post("/insert", format = "json", data = "<reactivo_form>")]
+#[post("/reactivo/insert", format = "json", data = "<reactivo_form>")]
 pub fn create_reactivo(
 reactivo_form: Json<ProductoModelForm<ReactivoForm>>,
 key: Result<JWT, Status>
@@ -39,7 +39,7 @@ key: Result<JWT, Status>
     }
 }
 
-#[put("/update/<id>", format = "json", data = "<reactivo_form>")]
+#[put("/reactivo/update/<id>", format = "json", data = "<reactivo_form>")]
 pub fn update_reactivo(
     id: i32,
     reactivo_form: Json<ProductoModelForm<ReactivoForm>>,
