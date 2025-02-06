@@ -1,35 +1,7 @@
 import { z } from "zod";
 
 
-/*
-export type Producto = {
-    idProducto:     number;
-    idLocalizacion: number;
-    idUbicacion:    number;
-    nombre:         string;
-    cantidad:       number | null;
-    stock_minimo:   number | null;
-}
-
-export type Reactivo = Producto & {
-    formato:        string | null;
-    gradoPureza:    string | null;
-    fechaCaducidad: Date | null;
-}
-
-export type Material = Producto & {
-    subcategoria: string | null;
-    numero_serie: string | null;
-    descripcion: string | null;
-    fecha_compra: Date | null;
-    fechaCaducidad: Date | null;
-}
-
-export type Auxiliar = Producto & {
-    formato: string | null;
-}
-*/
-const Producto = z.object({
+const ProductSchema = z.object({
     idProducto: z.number().optional(),
     idLocalizacion: z.number().optional(),
     idUbicacion: z.number().optional(),
@@ -37,13 +9,13 @@ const Producto = z.object({
     cantidad: z.number().nullable().optional(),
 })
 
-const Reactivo = Producto.extend({
+const ReactivoSchema = ProductSchema.extend({
     formato: z.string().nullable().optional(),
     gradoPureza: z.string().nullable().optional(),
     fechaCaducidad: z.string().nullable().optional(),
 })
 
-const Material = Producto.extend({
+const MaterialSchema = ProductSchema.extend({
     subcategoria: z.string().nullable().optional(),
     numero_serie: z.string().nullable().optional(),
     descripcion: z.string().nullable().optional(),
@@ -51,12 +23,12 @@ const Material = Producto.extend({
     fechaCaducidad: z.string().nullable().optional(),
 })
 
-const Auxiliar = Producto.extend({
+const AuxiliarSchema = ProductSchema.extend({
     formato: z.string().nullable().optional(),
 })
 
-export type Reactivo = z.infer<typeof Reactivo>
-export type Material = z.infer<typeof Material>
-export type Auxiliar = z.infer<typeof Auxiliar>
+export type Reactivo = z.infer<typeof ReactivoSchema>
+export type Material = z.infer<typeof MaterialSchema>
+export type Auxiliar = z.infer<typeof AuxiliarSchema>
 
 

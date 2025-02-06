@@ -2,7 +2,11 @@ use auth::auth_service;
 use database::models::usuarios_models::UsuarioForm;
 use database::repository::user_repository::{AuthRequest, AuthResponse};
 use rocket::http::Status;
-use rocket::serde::json::Json;
+use rocket::serde::json::{self, Json};
+use serde::Serialize;
+
+
+
 
 #[post("/login", format = "json", data = "<auth_request>")]
 // Request guard to ensure the request is valid

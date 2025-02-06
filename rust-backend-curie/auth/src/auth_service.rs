@@ -10,10 +10,6 @@ use database::models::usuarios_models::UsuarioForm;
 use database::repository::user_repository::{AuthRequest, AuthResponse};
 
 
-
-
-
-
 /**
  * 
  * Autentico el usuario (login)
@@ -35,7 +31,7 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stat
 
     let token = jwt_service::generate_token(user.id.to_string());
 
-    Ok(AuthResponse { token: Some(token) })
+    Ok(AuthResponse { token: Some(token), user: Some(user) })
 }
 
 /**
@@ -70,7 +66,7 @@ pub fn register_user(mut user: UsuarioForm) -> Result<AuthResponse, Status> {
     };
 
     let token = jwt_service::generate_token(user.id.to_string());
-    Ok(AuthResponse { token: Some(token) })
+    Ok(AuthResponse { token: Some(token), user: Some(user) })
 
 
 }

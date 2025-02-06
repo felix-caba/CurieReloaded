@@ -85,6 +85,7 @@ dependencies = [
  "diesel",
  "rocket",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
