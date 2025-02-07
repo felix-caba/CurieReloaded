@@ -13,6 +13,10 @@ import LoginScreen from './src/screens/LoginScreen';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useIsSignedIn } from './src/slices/authSlice';
 import ProductListScreen from './src/screens/ProductListScreen';
+import ProductsView from './src/screens/ProductsView';
+import { Auxiliar } from './src/types/product';
+import { Material } from './src/types/product';
+import { Reactivo } from './src/types/product';
 
 
 const RootStack = createNativeStackNavigator({
@@ -30,7 +34,6 @@ const RootStack = createNativeStackNavigator({
       options: {
         headerShown: false,
       },
-      
     },
     ProductList: {
       screen: ProductListScreen,
@@ -38,14 +41,28 @@ const RootStack = createNativeStackNavigator({
         headerShown: true,
       },
     },
+    ProductsView: {
+      screen: ProductsView,
+      options: {
+        headerShown: true,
+      },
+    },
   },
 });
 
-
-
 const Navigation = createStaticNavigation(RootStack);
 
-export type RootStackParamList = StaticParamList<typeof RootStack>;
+export type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+  ProductList: undefined;
+  ProductsView: {
+    products: (Reactivo | Material | Auxiliar)[];
+    type: 'Reactivo' | 'Material' | 'Auxiliar';
+  };
+};
+
+
 
 declare global {
   namespace ReactNavigation {

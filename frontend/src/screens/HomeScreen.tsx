@@ -7,53 +7,44 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { StaticScreenProps } from '@react-navigation/native';
+import { RootStackParamList } from '../../App';
+import { useGetReactivosQuery } from '../services/productService';
+import { Reactivo, Material, Auxiliar } from '../types/product';
 
-type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  ProductList: { 
-    type: string;
-    title: string;
-  };
-};  
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+export default function HomeScreen() {
 
-type ProductListProps = StaticScreenProps<{
-  type: string;
-  title: string;
-}>;
-
-export default function HomeScreen( { route }: ProductListProps ) {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  
+  const { data } = useGetReactivosQuery();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const user = useCurrentUser();
-
+ 
   const entities = [
     {
       id: '1',
       imageUrl: 'https://www.uv.es/gammmm/Subsitio%20Operaciones/images/reactivos_solidos.jpg',
-      title: 'Reactivo',
-      onView: () => navigation.navigate('ProductList', { 
+      title: 'Reactivo', 
+      onView: () => navigation.navigate('ProductsView', {
+        products: data as Reactivo[],
         type: 'Reactivo',
-        title: 'Lista de Reactivos'
       }),
     },
     {
       id: '2',
       imageUrl: 'https://www.eldivinopastor.com/wp-content/uploads/Instrumentos-de-laboratorio-de-quimica.jpg',
       title: 'Material',
-      onView: () => navigation.navigate('ProductList', {
+      onView: () => navigation.navigate('ProductsView', {
+        products: data as Material[],
         type: 'Material',
-        title: 'Lista de Materiales'
       }),
     },
     {
       id: '3',
       imageUrl: 'https://ieqfb.com/wp-content/uploads/postgrado-en-operaciones-en-laboratorio.jpg',
       title: 'Auxiliar',
-      onView: () => navigation.navigate('ProductList', {
+      onView: () => navigation.navigate('ProductsView', {
+        products: data as Auxiliar[],
         type: 'Auxiliar',
-        title: 'Lista de Auxiliares'
       }),
     },
   ];
