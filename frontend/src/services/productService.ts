@@ -8,9 +8,17 @@
           url: '/reactivo/select',
           method: 'GET',
         }),
-       
-      
+        providesTags: ['Reactivo'],
+      }),
 
+      createReactivo: builder.mutation<Reactivo, Reactivo>({
+        query: (reactivo) => ({
+          url: '/reactivo/insert',
+          method: 'POST',
+          body: reactivo,
+        }),
+        // invalida los tags dentro del cache, para que se actualice la lista de reactivos y no tire del cache del rtk
+        invalidatesTags: ['Reactivo'],
       }),
 
 

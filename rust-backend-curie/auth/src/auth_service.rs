@@ -5,8 +5,6 @@ use rocket::http::Status;
 use crate::jwt_service;
 use crate::bcrypt_encoder;
 use database::models::usuarios_models::UsuarioForm;
-
-
 use database::repository::user_repository::{AuthRequest, AuthResponse};
 
 
@@ -17,10 +15,9 @@ use database::repository::user_repository::{AuthRequest, AuthResponse};
  * 
  */
 
-
 pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Status> {
 
-    let user = match user_repository::get_user_by_username(&auth_request.username) {
+    let user = match user_repository::select_user_by_username(&auth_request.username) {
             Some(user) => user,
             None => return Err(Status::NotFound)
         };
@@ -29,7 +26,7 @@ pub fn authenticate_user(auth_request: AuthRequest) -> Result<AuthResponse, Stat
         return Err(Status::Unauthorized)
     }
 
-    let token = jwt_service::generate_token(user.id.to_string());
+    let token = jwt_service::generate_token(user.id);
 
     Ok(AuthResponse { token: Some(token), user: Some(user) })
 }
@@ -65,7 +62,7 @@ pub fn register_user(mut user: UsuarioForm) -> Result<AuthResponse, Status> {
         Err(_) => return Err(Status::InternalServerError),
     };
 
-    let token = jwt_service::generate_token(user.id.to_string());
+    let token = jwt_service::generate_token(user.id);
     Ok(AuthResponse { token: Some(token), user: Some(user) })
 
 

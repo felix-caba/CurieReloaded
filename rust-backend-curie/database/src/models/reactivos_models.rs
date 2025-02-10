@@ -3,12 +3,7 @@ use diesel::prelude::*;
 use chrono::NaiveDate;
 use serde:: Serialize;
 
-use super::productos_models::Model;
 
-impl Model for Reactivo {
-    type Table = reactivo::table;
-    type Model = Reactivo;
-}
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq, Insertable)]
 #[derive(serde::Deserialize, Serialize)]

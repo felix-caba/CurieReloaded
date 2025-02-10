@@ -26,11 +26,18 @@ pub struct RegisterRequest {
     pub email: String,
 }
 
+pub fn select_user_by_id(id_to_check: i32) -> Option<Usuario> {
+    let mut connection = establish_connection();
 
+    let user = usuarios
+        .filter(id.eq(id_to_check))
+        .first::<Usuario>(&mut connection)
+        .optional()
+        .expect("Error loading user");
+    user
+}
 
-
-pub fn get_user_by_email(email_to_search: &str) -> Option<Usuario> {
-
+pub fn select_user_by_email(email_to_search: &str) -> Option<Usuario> {
     let mut connection = establish_connection();
 
     let user = usuarios
@@ -40,12 +47,10 @@ pub fn get_user_by_email(email_to_search: &str) -> Option<Usuario> {
         .expect("Error loading user");
 
     user
-    
 }
 
-pub fn get_user_by_username(username_to_search: &str) -> Option<Usuario> {
+pub fn select_user_by_username(username_to_search: &str) -> Option<Usuario> {
     let mut connection = establish_connection();
-
     let user = usuarios
         .filter(username.eq(username_to_search))
         .first::<Usuario>(&mut connection)
@@ -56,11 +61,11 @@ pub fn get_user_by_username(username_to_search: &str) -> Option<Usuario> {
 }
 
 pub fn username_exists(username_to_check: &str) -> bool {
-    get_user_by_username(username_to_check).is_some()
+    select_user_by_username(username_to_check).is_some()
 }
 
 pub fn email_exists(email_to_check: &str) -> bool {
-    get_user_by_email(email_to_check).is_some()
+    select_user_by_email(email_to_check).is_some()
 }
 
 pub fn check_duplicate_user(new_user: &UsuarioForm) -> bool {

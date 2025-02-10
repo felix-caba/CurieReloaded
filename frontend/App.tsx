@@ -6,17 +6,18 @@ import { store, persistor } from './src/store/store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toasts } from '@backpackapp-io/react-native-toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { createStaticNavigation, NavigationContainer, NavigatorScreenParams, StaticParamList, StaticScreenProps } from '@react-navigation/native';
+import { createStaticNavigation, NavigationContainer, NavigatorScreenParams, StaticParamList, StaticScreenProps } 
+from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useIsSignedIn } from './src/slices/authSlice';
-import ProductListScreen from './src/screens/ProductListScreen';
 import ProductsView from './src/screens/ProductsView';
 import { Auxiliar } from './src/types/product';
 import { Material } from './src/types/product';
 import { Reactivo } from './src/types/product';
+import DetailScreen from './src/screens/DetailScreen';
 
 
 const RootStack = createNativeStackNavigator({
@@ -35,14 +36,14 @@ const RootStack = createNativeStackNavigator({
         headerShown: false,
       },
     },
-    ProductList: {
-      screen: ProductListScreen,
+    ProductsView: {
+      screen: ProductsView,
       options: {
         headerShown: true,
       },
     },
-    ProductsView: {
-      screen: ProductsView,
+    DetailsScreen: {
+      screen: DetailScreen,
       options: {
         headerShown: true,
       },
@@ -55,14 +56,13 @@ const Navigation = createStaticNavigation(RootStack);
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
-  ProductList: undefined;
   ProductsView: {
     products: (Reactivo | Material | Auxiliar)[];
-    type: 'Reactivo' | 'Material' | 'Auxiliar';
   };
+  DetailsScreen: {
+    product: Reactivo | Material | Auxiliar;
+  }
 };
-
-
 
 declare global {
   namespace ReactNavigation {

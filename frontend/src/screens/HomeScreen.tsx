@@ -26,7 +26,6 @@ export default function HomeScreen() {
       title: 'Reactivo', 
       onView: () => navigation.navigate('ProductsView', {
         products: data as Reactivo[],
-        type: 'Reactivo',
       }),
     },
     {
@@ -35,7 +34,6 @@ export default function HomeScreen() {
       title: 'Material',
       onView: () => navigation.navigate('ProductsView', {
         products: data as Material[],
-        type: 'Material',
       }),
     },
     {
@@ -44,7 +42,6 @@ export default function HomeScreen() {
       title: 'Auxiliar',
       onView: () => navigation.navigate('ProductsView', {
         products: data as Auxiliar[],
-        type: 'Auxiliar',
       }),
     },
   ];
@@ -62,7 +59,6 @@ export default function HomeScreen() {
                 imageUrl={item.imageUrl}
                 title={item.title}
                 onView={item.onView}
-                onEdit={() => console.log('Editar', item.id)}
                 onCreate={() => console.log('Crear nuevo')}
               />
             </View>

@@ -18,6 +18,9 @@ pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
     }
 }
 
+// Request Guard, Reactivo form is valid
+// Also Jwt implements fromRequest, but also Result<JWT, Status>
+// only if T implements FromRequest & also e implements a responder
 #[post("/reactivo/insert", format = "json", data = "<reactivo_form>")]
 pub fn create_reactivo(
 reactivo_form: Json<ProductoModelForm<ReactivoForm>>,
@@ -25,8 +28,6 @@ key: Result<JWT, Status>
 ) -> Result<Json<ProductoModel<Reactivo>>, Status> {
 
     key?;
-
-    
 
     let reactivo = productos_repository::insert_reactivo(reactivo_form.into_inner());
 

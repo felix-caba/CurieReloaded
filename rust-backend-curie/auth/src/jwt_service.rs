@@ -6,13 +6,14 @@ use rocket::Request;
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::env;
+
 #[derive(Debug, Serialize, Deserialize)]
 
 pub struct Claims {
-    sub: String,  // subject (user id)
-    exp: usize,   // expiration time
-    iat: usize,   // issued at
-    admin: bool,
+    pub sub: i32,  // subject (user id)
+    pub exp: usize,   // expiration time
+    pub iat: usize,   // issued at
+    pub admin: bool,
 }
 
 pub struct JWT {
@@ -23,23 +24,20 @@ pub struct JWT {
 impl<'r> FromRequest<'r> for JWT {
     type Error = Status;
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Status> {
-        
         fn is_valid(key: &str) -> Result<Claims, Error> {
             Ok(decode_token(key)?)
         }
-
         let token = req.headers().get_one("Authorization");
-
         match token {
-            None => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+            None => Outcome::Error((Status::PreconditionFailed, Status::PreconditionFailed)),
             Some(token) => {
                 let claims = is_valid(&token);
                 match claims {
                     Ok(claims) => Outcome::Success(JWT { claims }),
                     Err(err) => match &err.kind() {
                         ErrorKind::InvalidToken => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
-                        ErrorKind::ExpiredSignature => Outcome::Error((Status::Unauthorized, Status::from_code(419).unwrap())),
-                        ErrorKind::InvalidSignature => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+                        ErrorKind::ExpiredSignature => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+                        ErrorKind::InvalidSignature => Outcome::Error((Status::Forbidden, Status::Forbidden)),
                         _ => {
                             eprintln!("Error: {}", err);
                             Outcome::Error((Status::InternalServerError, Status::InternalServerError))
@@ -51,6 +49,14 @@ impl<'r> FromRequest<'r> for JWT {
     }
 }
 
+pub fn check_admin(token: &str) -> bool {
+    let claims = decode_token(token);
+    match claims {
+        Ok(claims) => claims.admin,
+        Err(_) => false,
+    }
+}
+
 pub fn decode_token(token: &str) -> Result<Claims, Error> {
     let key = env::var("JWT_SECRET").unwrap();
     let key = DecodingKey::from_secret(key.as_bytes());
@@ -58,7 +64,7 @@ pub fn decode_token(token: &str) -> Result<Claims, Error> {
     Ok(token_data.claims)
 }
 
-pub fn generate_token(user_id: String) -> String {
+pub fn generate_token(user_id: i32) -> String {
 
     let exp = SystemTime::now()
         .duration_since(UNIX_EPOCH)

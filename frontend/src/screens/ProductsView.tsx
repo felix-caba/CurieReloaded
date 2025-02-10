@@ -1,14 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { StaticScreenProps } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { Reactivo, Material, Auxiliar } from '../types/product';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductsView'>;
 
 export default function ProductsView({ route }: Props) {
-  const { products, type } = route.params;
+
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
+  const { products } = route.params;
   const [searchQuery, setSearchQuery] = useState('');
   const [sortByCantidad, setSortByCantidad] = useState(false);
 
@@ -26,7 +29,7 @@ export default function ProductsView({ route }: Props) {
   }, [filteredProducts, sortByCantidad]);
 
   const renderProductItem = ({ item }: { item: Reactivo | Material | Auxiliar }) => (
-    <TouchableOpacity style={styles.productItem}>
+    <TouchableOpacity style={styles.productItem} onPress={() => navigation.navigate('DetailsScreen', { product: item })}>
       <Text style={styles.productName}>{item.nombre}</Text>
       <Text>Cantidad: {item.cantidad ?? 'N/A'}</Text>
     </TouchableOpacity>

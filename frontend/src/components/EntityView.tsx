@@ -41,14 +41,7 @@ export default function EntityView({
           >
             <Feather name="eye" size={24} color="#007AFF" />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={onEdit}
-          >
-            <Feather name="edit-2" size={24} color="#007AFF" />
-          </TouchableOpacity>
-
+          
           <TouchableOpacity
             style={styles.actionButton}
             onPress={onCreate}
@@ -93,3 +86,11 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
 }); 
+
+/*<TouchableOpacity
+            style={styles.actionButton}
+            onPress={onEdit}
+          >
+            <Feather name="edit-2" size={24} color="#007AFF" />
+          </TouchableOpacity>
+          */
