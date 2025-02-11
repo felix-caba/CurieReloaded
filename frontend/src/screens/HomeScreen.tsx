@@ -14,10 +14,13 @@ import { Reactivo, Material, Auxiliar } from '../types/product';
 
 export default function HomeScreen() {
 
-  
-  const { data } = useGetReactivosQuery();
+  const { data, isError } = useGetReactivosQuery();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const user = useCurrentUser();
+
+  if (isError) {
+    console.log('Error fetching reactivos:', isError);
+  }
  
   const entities = [
     {

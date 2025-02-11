@@ -8,7 +8,9 @@ edition = "2021"
 diesel.workspace = true
 rocket.workspace = true
 serde.workspace = true
+
 database = { path = "../database" }
 auth = { path = "../auth" }
 serde_json = "1.0"
+
 

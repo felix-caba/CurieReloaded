@@ -6,6 +6,8 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 
 
+
+
 #[post("/login", format = "json", data = "<auth_request>")]
 // Request guard to ensure the request is valid
 pub fn login(auth_request: Json<AuthRequest>) -> Result<Json<AuthResponse>, Status> {
@@ -13,7 +15,7 @@ pub fn login(auth_request: Json<AuthRequest>) -> Result<Json<AuthResponse>, Stat
 
     match auth_response {
         Ok(auth_response) => Ok(Json(auth_response)),
-        Err(e) => Err(e),
+        Err(_) => Err(Status::Unauthorized),
     }
 }
 
@@ -23,13 +25,13 @@ pub fn register(user: Json<UsuarioForm>) -> Result<Json<AuthResponse>, Status> {
 
     match user_response {
         Ok(user_response) => Ok(Json(user_response)),
-        Err(e) => Err(e),
+        Err(_) => Err(Status::InternalServerError),
     }
 }
 
 #[get("/me")]
 pub fn get_me(key: Result<JWT, Status>) -> Result<Json<Usuario>, Status> {
-    let _key = key?;
+    let _key = key.map_err(|_| Status::Unauthorized)?;
     let user = user_repository::select_user_by_id(_key.claims.sub);
     match user {
         Some(user) => Ok(Json(user)),

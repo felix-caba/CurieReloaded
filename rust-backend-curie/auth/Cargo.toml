@@ -8,6 +8,7 @@ diesel.workspace = true
 rocket.workspace = true
 serde.workspace = true
 
+
 bcrypt = "0.17.0"
 database = { path = "../database" }
 jsonwebtoken = "9.3.0"

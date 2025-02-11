@@ -5,7 +5,7 @@ export const saveCredentials = async (user: User, token: string) => {
   await Keychain.setGenericPassword(user.username, token);
 };
 
-const getCredentials = async () => {
+export const getCredentials = async () => {
   try {
     const credentials = await Keychain.getGenericPassword();
     if (credentials) {

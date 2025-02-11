@@ -6,8 +6,10 @@ import { handleErrorMessage } from '../handlers/errorHandler'
 
 export const ErrorMiddleware: Middleware =
   (api: MiddlewareAPI) => (next) => (action) => {
+    
     if (isRejectedWithValue(action)) {
-        handleErrorMessage(action.error)
+        console.log('action', action);
+        handleErrorMessage(action.payload)
     }
     return next(action)
   }

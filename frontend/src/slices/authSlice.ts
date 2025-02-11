@@ -11,8 +11,6 @@ interface AuthState {
     user: User | null;
 }
 
-
-
 const authSlice = createSlice({
     name: 'authSlice',
     initialState: {

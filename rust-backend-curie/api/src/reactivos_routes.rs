@@ -5,8 +5,12 @@ use database::repository::productos_repository;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 
+
 #[get("/reactivo/select")]
-pub fn get_reactivos() -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
+pub fn get_reactivos(key: Result<JWT, Status>) -> Result<Json<Vec<ProductoModel<Reactivo>>>, Status> {
+    
+    key?;
+
     let reactivos = productos_repository::select_reactivos();
 
     match reactivos {

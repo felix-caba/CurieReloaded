@@ -27,9 +27,26 @@ impl<'r> FromRequest<'r> for JWT {
         fn is_valid(key: &str) -> Result<Claims, Error> {
             Ok(decode_token(key)?)
         }
+        
         let token = req.headers().get_one("Authorization");
         match token {
-            None => Outcome::Error((Status::PreconditionFailed, Status::PreconditionFailed)),
+            None => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+            Some(token) if token.starts_with("Bearer ") => {
+                let token = token.trim_start_matches("Bearer ");
+                let claims = is_valid(token);
+                match claims {
+                    Ok(claims) => Outcome::Success(JWT { claims }),
+                    Err(err) => match &err.kind() {
+                        ErrorKind::InvalidToken => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+                        ErrorKind::ExpiredSignature => Outcome::Error((Status::Unauthorized, Status::Unauthorized)),
+                        ErrorKind::InvalidSignature => Outcome::Error((Status::Forbidden, Status::Forbidden)),
+                        _ => {
+                            eprintln!("Error: {}", err);
+                            Outcome::Error((Status::InternalServerError, Status::InternalServerError))
+                        }
+                    }
+                }
+            }
             Some(token) => {
                 let claims = is_valid(&token);
                 match claims {

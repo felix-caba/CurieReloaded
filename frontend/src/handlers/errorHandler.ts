@@ -13,7 +13,7 @@ interface ErrorResponse {
 function isFetchBaseQueryError(error: any): error is FetchBaseQueryError {
     return 'status' in error; 
  }
- 
+
 export function handleErrorMessage(error: any) {
     if (error instanceof z.ZodError) {
         const errorMessages = error.errors.map((error) => error.message);
@@ -23,7 +23,11 @@ export function handleErrorMessage(error: any) {
     }
     else if (isFetchBaseQueryError(error)) {
         const errorData = error.data as ErrorResponse;
-        toast.error(errorData.error.description);
+        if (errorData && errorData.error) {
+            toast.error(errorData.error.description);
+        } else {
+            toast.error(`An unexpected error occurred: ${error.status}`);
+        }
     }
     else {
         console.log(error);
